@@ -15,7 +15,9 @@ def heaviest_pokemon():
 def find_by_type(type):
     try:
         with connection.cursor() as cursor:
-            query = f"SELECT name FROM pokemon WHERE type = '{type}'"
+            query = "select name " \
+                    "from types t,pokemon p " \
+                    f"where t.id =p.id and t.type='{type}'"
             cursor.execute(query)
             result = cursor.fetchall()
             result2 = []
@@ -79,5 +81,25 @@ def finds_most_owned():
         print(e)
 
 
-def update_types(name,types):
-    pass
+def update_types(name, types):
+    try:
+        with connection.cursor() as cursor:
+            query_get_id_name = "select id " \
+                                "from pokemon " \
+                                f"where name=\"{name}\""
+            cursor.execute(query_get_id_name)
+            id = cursor.fetchall()[0]['id']
+            for type in types:
+                query_is_exist = f'select * from types where id={id} and type="{type}" '
+                cursor.execute(query_is_exist)
+                result = cursor.fetchall()
+                if len(result) == 0:
+                    query_insert_types = 'INSERT into types ( id, type) ' \
+                                         f'values ({id}, "{type}")'
+                    try:
+                        cursor.execute(query_insert_types)
+                    except(Exception)as e:
+                        print(e)
+            connection.commit()
+    except(Exception) as e:
+        print(e)
