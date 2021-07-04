@@ -78,3 +78,6 @@ def finds_most_owned():
     except(Exception) as e:
         print(e)
 
+
+def update_types(name,types):
+    pass
