@@ -14,8 +14,8 @@ def load_data():
     try:
         with connection.cursor() as cursor:
             for pokemon in pokemons:
-                query = 'INSERT into pokemon (id, name, type, height, weight) ' \
-                        f'values ({pokemon["id"]},"{pokemon["name"]}", "{pokemon["type"]}",' \
+                query = 'INSERT into pokemon (id, name, height, weight) ' \
+                        f'values ({pokemon["id"]},"{pokemon["name"]}", ' \
                         f' {pokemon["height"]}, {pokemon["weight"]})'
                 try:
                     cursor.execute(query)
