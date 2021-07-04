@@ -1,6 +1,6 @@
 from configure import connection
 
-#oryan
+
 def heaviest_pokemon():
     try:
         with connection.cursor() as cursor:
@@ -78,3 +78,6 @@ def finds_most_owned():
     except(Exception) as e:
         print(e)
 
+
+def update_types(name,types):
+    pass
