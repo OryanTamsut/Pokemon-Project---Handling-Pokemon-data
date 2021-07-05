@@ -10,6 +10,7 @@ def heaviest_pokemon():
             return result[0]['name']
     except(Exception) as e:
         print(e)
+        return False
 
 
 def find_by_type(type):
@@ -26,6 +27,7 @@ def find_by_type(type):
             return result2
     except(Exception) as e:
         print(e)
+        return False
 
 
 def find_owners(pokemon_name):
@@ -42,6 +44,7 @@ def find_owners(pokemon_name):
             return result2
     except(Exception) as e:
         print(e)
+        return False
 
 
 def find_roster(trainer_name):
@@ -58,6 +61,7 @@ def find_roster(trainer_name):
             return result2
     except(Exception) as e:
         print(e)
+        return False
 
 
 def finds_most_owned():
@@ -81,7 +85,6 @@ def finds_most_owned():
         print(e)
 
 
-
 def delete_pokemon(trainer, pokemon):
     try:
         with connection.cursor() as cursor:
@@ -90,6 +93,7 @@ def delete_pokemon(trainer, pokemon):
         connection.commit()
     except(Exception) as e:
         return False
+
 
 def add_pokemon(id, name, height, weight):
     try:
@@ -100,6 +104,8 @@ def add_pokemon(id, name, height, weight):
         connection.commit()
     except(Exception) as e:
         return False
+
+
 def update_types(name, types):
     try:
         with connection.cursor() as cursor:
@@ -122,4 +128,38 @@ def update_types(name, types):
             connection.commit()
     except(Exception) as e:
         print(e)
+        return False
 
+
+def update_own_pokemon(owner_name, pokemon_id_prev, pokemon_id_current):
+    try:
+        with connection.cursor() as cursor:
+            try:
+                query_update_ownership = "UPDATE ownership " \
+                                         f"SET pokemon_id = {pokemon_id_current} " \
+                                         f"WHERE owner_name='{owner_name}' and pokemon_id={pokemon_id_prev};"
+                cursor.execute(query_update_ownership)
+                connection.commit()
+                return True
+            except(Exception)as e:
+                return False
+    except(Exception) as e:
+        print(e)
+        return False
+
+
+def get_types_by_pokemon(pokemon_id):
+    try:
+        with connection.cursor() as cursor:
+            query = "select type " \
+                    "from types" \
+                    f"where id ={pokemon_id}"
+            cursor.execute(query)
+            result = cursor.fetchall()
+            result2 = []
+            for type in result:
+                result2.append(type['type'])
+            return result2
+    except(Exception) as e:
+        print(e)
+        return False
