@@ -103,3 +103,4 @@ def update_types(name, types):
             connection.commit()
     except(Exception) as e:
         print(e)
+
