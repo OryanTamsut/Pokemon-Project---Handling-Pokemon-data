@@ -4,6 +4,7 @@ from configure import connection
 def heaviest_pokemon():
     try:
         with connection.cursor() as cursor:
+            #select the haviest pokemon from DB
             query = "select name from pokemon where weight in(select max(weight) from pokemon)"
             cursor.execute(query)
             result = cursor.fetchall()
@@ -16,6 +17,7 @@ def heaviest_pokemon():
 def find_by_type(type):
     try:
         with connection.cursor() as cursor:
+            #find all the pokemons where their type equals to the accepted type
             query = "select name " \
                     "from types t,pokemon p " \
                     f"where t.id =p.id and t.type='{type}'"
@@ -33,6 +35,7 @@ def find_by_type(type):
 def find_owners(pokemon_name):
     try:
         with connection.cursor() as cursor:
+            #find all the owners of the accepted pokemon
             query = "select owner_name " \
                     "from ownership ,pokemon " \
                     f"where pokemon_id= id and name=\"{pokemon_name}\""
@@ -50,6 +53,7 @@ def find_owners(pokemon_name):
 def find_roster(trainer_name):
     try:
         with connection.cursor() as cursor:
+            #find all the pokemons of the accepted trainer
             query = "select name " \
                     "from ownership ,pokemon " \
                     f"where pokemon_id= id and owner_name=\"{trainer_name}\""
@@ -67,6 +71,7 @@ def find_roster(trainer_name):
 def finds_most_owned():
     try:
         with connection.cursor() as cursor:
+            #finds the pokemon that has the most owners
             query = "select name from " \
                     "(select pokemon_id, count(*) as count " \
                     "from ownership " \
