@@ -7,6 +7,7 @@ from flask import Flask, Response, request
 app = Flask(__name__)
 url_get_pokemon = "https://pokeapi.co/api/v2/pokemon"
 
+
 @app.route('/')
 def index():
     return "Server is up"
@@ -184,32 +185,42 @@ def evolve():
         return Response(json.dumps({"err": "require body parameter: pokemon_name,trainer_name "}), 400)
 
     # get the next version of the pokemon
-    pokemon_data = requests.get(url=f'{url_get_pokemon}/{pokemon_name}/', verify=False).json()
+    pokemon_data = requests.get(url=f'{url_get_pokemon}/{pokemon_name}/', verify=False)
+    pokemon_data = pokemon_data.json()
     if pokemon_data is None:
         return Response(json.dumps({"err": "failed- not found pokemon in API"}), 500)
     id = pokemon_data.get('id')
     species = pokemon_data.get('species')
     evolution_chain = requests.get(url=species.get('url'), verify=False).json().get('evolution_chain')
-    chain = requests.get(url=evolution_chain.get('url'), verify=False).json().get('cain')
-    while chain.get('species').get('name'):
+    chain = requests.get(url=evolution_chain.get('url'), verify=False).json().get('chain')
+    while chain.get('species').get('name') != pokemon_name:
+        if len(chain.get('evolves_to')) == 0:
+            return Response(json.dumps({"error": "not have a new version"}), 500)
         chain = chain.get('evolves_to')[0]
     if len(chain.get('evolves_to')) == 0:
-        return Response(json.dumps({"success": "not have a new version"}), 200)
+        return Response(json.dumps({"error": "not have a new version"}), 500)
     new_name = chain.get('evolves_to')[0].get('species').get('name')
     # get the new pokemon data and add it to the DB
     new_pokemon = requests.get(url=f'{url_get_pokemon}/{new_name}/', verify=False).json()
     is_success = queries.add_pokemon(new_pokemon.get('id'), new_name, new_pokemon.get('height'),
                                      new_pokemon.get('weight'))
-    if not is_success:
-        return Response(json.dumps({"err": "failed- could not upgrade pokemon"}), 500)
+    if not is_success[0] and is_success[1] != "pokemon already exist":
+        return Response(json.dumps({"err": "failed- could not upgrade pokemon " + is_success[1]}), 500)
     is_success = update_type(new_name)
     if not is_success[0]:
         return Response(json.dumps({"err": "failed- could not upgrade pokemon: " + is_success[1]}), 500)
+    if queries.check_exist_owner_pokemon(trainer_name, id) is False:
+        return Response(json.dumps({"err": "this pokemon is not owned by this traniner"}), 400)
     # update the pokemon's owner that now he have a new version
     is_success = queries.update_own_pokemon(trainer_name, id, new_pokemon.get('id'))
-    if not is_success:
-        return Response(json.dumps({"err": "failed- could not upgrade pokemon"}), 500)
-    return Response(json.dumps({"success": "upgrade successfully"}), 200)
+    if not is_success[0]:
+        return Response(json.dumps({"err": "failed- could not upgrade pokemon " + is_success[1]}), 500)
+    if is_success[1] == "already exist":
+        return Response(json.dumps({"success": "upgrade successfully to " + new_name + ", the pokemon already exist"}),
+                        200)
+    else:
+        return Response(json.dumps({"success": "upgrade successfully to " + new_name}),
+                        200)
 
 
 if __name__ == '__main__':

@@ -1,5 +1,4 @@
 import requests
-from werkzeug.wrappers import response
 
 url = "http://127.0.0.1:5555"
 
@@ -47,6 +46,7 @@ def test_get_owners_by_pokemon():
     trainers = requests.get(url=f'{url}/getTrainersByPokemon?name=charmander').json().get('trainers')
     assert trainers == ["Giovanni", "Jasmine", "Whitney"]
 
+
 # test 1
 def test_get_pokemons_by_types():
     pokemons = requests.get(url=f'{url}/getPokemonByType?type=normal').json()
@@ -54,6 +54,7 @@ def test_get_pokemons_by_types():
     assert "eevee" in pokemons
     result = requests.put(url=f'{url}/updateType?name=eevee')
     assert result.status_code == 200
+
 
 # test 3
 def test_update_pokemon_types():
@@ -64,3 +65,35 @@ def test_update_pokemon_types():
     pokemons = requests.get(url=f'{url}/getPokemonByType?type=grass').json().get('pokemons')
     assert "venusaur" in pokemons
 
+
+# test 7
+def test_evolve():
+    """
+    # try evolve pokemon that can't be evolved
+    result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "pinsir", "trainer_name": "Whitney"})
+    assert result.status_code == 500 and result.json().get('error') == "not have a new version"
+
+    # try evolve pokemon that not owned by this trainer
+    result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "spearow ", "trainer_name": "Archie"})
+    assert result.status_code == 400 and result.json().get('err') == "this pokemon is not owned by this traniner"
+"""
+
+    # evolve pokemon
+    result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "oddish", "trainer_name": "Whitney"})
+    assert result.status_code == 200 and result.json().get('success') == "upgrade successfully to gloom"
+
+    # try evolve it again- will fail
+    result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "oddish", "trainer_name": "Whitney"})
+    assert result.status_code == 400 and result.json().get('err') == "this pokemon is not owned by this traniner"
+
+    # check that gloom is in the Whitney's pokemons
+    pokemons = requests.get(url=f'{url}/getPokemonsByTrainer?trainer=Whitney').json().get('pokimons')
+    assert "gloom" in pokemons
+
+    # check raichu and pikachu is in Whitney's pokemons
+    pokemons = requests.get(url=f'{url}/getPokemonsByTrainer?trainer=Whitney').json().get('pokimons')
+    assert "pikachu" in pokemons and "raichu" in pokemons
+    # evolve pikachu
+    result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "pikachu", "trainer_name": "Whitney"})
+    assert result.status_code == 200 and result.json().get(
+        'success') == "upgrade successfully to raichu, the pokemon already exist"

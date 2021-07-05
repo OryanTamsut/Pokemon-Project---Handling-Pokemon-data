@@ -143,6 +143,13 @@ def update_own_pokemon(owner_name, pokemon_id_prev, pokemon_id_current):
     try:
         with connection.cursor() as cursor:
             try:
+                query_check_exist = "select * " \
+                                    "from ownership " \
+                                    f"where owner_name='{owner_name}' and pokemon_id={pokemon_id_current}"
+                cursor.execute(query_check_exist)
+                result = cursor.fetchall()
+                if len(result) != 0:
+                    return True, "already exist"
                 query_update_ownership = "UPDATE ownership " \
                                          f"SET pokemon_id = {pokemon_id_current} " \
                                          f"WHERE owner_name='{owner_name}' and pokemon_id={pokemon_id_prev};"
@@ -154,3 +161,21 @@ def update_own_pokemon(owner_name, pokemon_id_prev, pokemon_id_current):
     except(Exception) as e:
         print(e)
         return False, str(e)
+
+
+def check_exist_owner_pokemon(owner_name, pokemon_id):
+    try:
+        with connection.cursor() as cursor:
+            try:
+                query_update_ownership = "SELECT * " \
+                                         "FROM pokemon.ownership " \
+                                         f"where owner_name='{owner_name}' and pokemon_id={pokemon_id};"
+                cursor.execute(query_update_ownership)
+                result = cursor.fetchall()
+                if len(result) > 0:
+                    return True
+                return False
+            except:
+                return False
+    except:
+        return False
