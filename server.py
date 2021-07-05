@@ -7,7 +7,6 @@ from flask import Flask, Response, request
 app = Flask(__name__)
 url_get_pokemon = "https://pokeapi.co/api/v2/pokemon"
 
-
 @app.route('/')
 def index():
     return "Server is up"
