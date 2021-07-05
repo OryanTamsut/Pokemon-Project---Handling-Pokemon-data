@@ -12,13 +12,13 @@ def index():
     return "Server is up"
 
 
-@app.route('/update_type', methods=['PUT'])
+@app.route('/updateType', methods=['PUT'])
 def update_type():
     pokemon_name = request.args.get("name")
     if pokemon_name is None:
         return Response(json.dumps({"err": "require url parameter: name"}), 400)
     else:
-        types = requests.get(url=f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}/').json().get('types')
+        types = requests.get(url=f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}/', verify=False).json().get('types')
         types_array = []
         if types is not None:
             for type in types:
@@ -29,7 +29,27 @@ def update_type():
             return Response(json.dumps({"err": "not found types"}), 500)
 
 
-@app.route('/getPokemons', methods=['GET'])
+@app.route('/getPokemonByType', methods=['GET'])
+def get_pokemon_by_type():
+    type = request.args.get("type")
+    if type is None:
+        return Response(json.dumps({"err": "require url parameter: type"}), 400)
+    else:
+        pokemons = queries.find_by_type(type)
+        return Response(json.dumps({"pokemons": pokemons}), 200)
+
+
+@app.route('/getTrainersByPokemon', methods=['GET'])
+def get_trainers_by_pokemon():
+    pokemon_name = request.args.get("name")
+    if pokemon_name is None:
+        return Response(json.dumps({"err": "require url parameter: name"}), 400)
+    else:
+        trainers = queries.find_owners(pokemon_name)
+        return Response(json.dumps({"trainers": trainers}), 200)
+
+
+@app.route('/getPokemonsByTrainer', methods=['GET'])
 def get_pokemons_by_trainer():
     trainer_name = request.args.get("trainer")
     if trainer_name is None:
@@ -64,6 +84,7 @@ def add_pokemon():
     if result is False:
         return Response(json.dumps({"err": "failed"}), 500)
     return Response(json.dumps({"success:": "posted"}), 200)
+    return Response(json.dumps({"pokimons": pokemons}), 200)
 
 
 if __name__ == '__main__':
