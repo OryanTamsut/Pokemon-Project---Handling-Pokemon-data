@@ -90,12 +90,14 @@ def add_pokemon():
     if pokemon_id is None or pokemon_name is None or pokemon_height is None or pokemon_weight is None:
         return Response(json.dumps({"err": "require body parameter: id, name. height, weight"}), 400)
     result = queries.add_pokemon(str(pokemon_id), str(pokemon_name), str(pokemon_height), str(pokemon_weight))
+    if not result[0]:
+        return Response(json.dumps({"err": result[1]}), 500)
     is_pokemon_in_api = requests.get(url=f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}/', verify=False).json()
     if is_pokemon_in_api is None:
         return Response(json.dumps({"success:": "posted"}), 200)
     is_success = update_type(pokemon_name)
-    if not result or not is_success:
-        return Response(json.dumps({"err": "failed"}), 500)
+    if not is_success[0]:
+        return Response(json.dumps({"err": "failed" + is_success[1]}), 500)
     return Response(json.dumps({"success:": "posted"}), 200)
 
 
@@ -121,8 +123,8 @@ def evolve():
     if not is_success:
         return Response(json.dumps({"err": "failed- could not upgrade pokemon"}), 500)
     is_success = update_type(new_name)
-    if not is_success:
-        return Response(json.dumps({"err": "failed- could not upgrade pokemon"}), 500)
+    if not is_success[0]:
+        return Response(json.dumps({"err": "failed- could not upgrade pokemon: " + is_success[1]}), 500)
     is_success = queries.update_own_pokemon(trainer_name, id, new_pokemon.get('id'))
     if not is_success:
         return Response(json.dumps({"err": "failed- could not upgrade pokemon"}), 500)

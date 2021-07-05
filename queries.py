@@ -97,13 +97,19 @@ def delete_pokemon(trainer, pokemon):
 
 def add_pokemon(id, name, height, weight):
     try:
-        with connection.cursor() as cursar:
+        with connection.cursor() as cursor:
+            query = f'select * from pokemon where id={id}'
+            cursor.execute(query)
+            result = cursor.fetchall()
+            if len(result) > 0:
+                return False, "pokemon already exist"
             query = 'INSERT into pokemon (id, name, height, weight) ' \
                     f'values ({id},"{name}", {height}, {weight})'
-            cursar.execute(query)
+            cursor.execute(query)
         connection.commit()
+        return True, "success"
     except(Exception) as e:
-        return False
+        return False, e
 
 
 def update_types(name, types):
