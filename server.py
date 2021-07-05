@@ -49,5 +49,16 @@ def get_trainers_by_pokemon():
         return Response(json.dumps({"trainers": trainers}), 200)
 
 
+@app.route('/getPokemons', methods=['GET'])
+def get_pokemons_by_trainer():
+    trainer_name = request.args.get("trainer")
+    if trainer_name is None:
+        return Response(json.dumps({"err": "require url parameter: trainer"}), 400)
+    pokemons = queries.find_roster(str(trainer_name))
+    if pokemons is None:
+        return Response(json.dumps({"err": "not found pokemons"}), 500)
+    return Response(json.dumps({"pokimons": pokemons}), 200)
+
+
 if __name__ == '__main__':
     app.run(port=5555)
