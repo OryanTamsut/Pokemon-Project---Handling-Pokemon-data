@@ -88,7 +88,9 @@ def finds_most_owned():
 def delete_pokemon(trainer, pokemon):
     try:
         with connection.cursor() as cursor:
-            query = f"delete from ownership where owner_name = '{trainer}' and pokemon_id in (select id from pokemon where name = '{pokemon}')"
+            query = "delete from ownership " \
+                    f"where owner_name = '{trainer}' and pokemon_id in" \
+                    f" (select id from pokemon where name = '{pokemon}')"
             cursor.execute(query)
         connection.commit()
     except(Exception) as e:
@@ -146,26 +148,9 @@ def update_own_pokemon(owner_name, pokemon_id_prev, pokemon_id_current):
                                          f"WHERE owner_name='{owner_name}' and pokemon_id={pokemon_id_prev};"
                 cursor.execute(query_update_ownership)
                 connection.commit()
-                return True
+                return True, "success"
             except(Exception)as e:
-                return False
+                return False, str(e)
     except(Exception) as e:
         print(e)
-        return False
-
-
-def get_types_by_pokemon(pokemon_id):
-    try:
-        with connection.cursor() as cursor:
-            query = "select type " \
-                    "from types" \
-                    f"where id ={pokemon_id}"
-            cursor.execute(query)
-            result = cursor.fetchall()
-            result2 = []
-            for type in result:
-                result2.append(type['type'])
-            return result2
-    except(Exception) as e:
-        print(e)
-        return False
+        return False, str(e)
