@@ -124,11 +124,11 @@ def update_types(name, types):
                     try:
                         cursor.execute(query_insert_types)
                     except(Exception)as e:
-                        print(e)
+                        return False, str(e)
             connection.commit()
+            return True, "success"
     except(Exception) as e:
-        print(e)
-        return False
+        return False, str(e)
 
 
 def update_own_pokemon(owner_name, pokemon_id_prev, pokemon_id_current):

@@ -5,27 +5,25 @@ import queries
 from flask import Flask, Response, request
 
 app = Flask(__name__)
-
+url_get_pokemon = "https://pokeapi.co/api/v2/pokemon"
 
 @app.route('/')
 def index():
     return "Server is up"
 
-
 def update_type(pokemon_name):
-    types = requests.get(url=f'https://pokeapi.co/api/v2/pokemon/{pokemon_name}/', verify=False).json()
+    types = requests.get(url=f'{url_get_pokemon}/{pokemon_name}/', verify=False).json()
     if types is None:
-        return False
+        return False, "pokemon not exist in API"
     types = types.get('types')
     types_array = []
     if types is not None:
         for type in types:
             types_array.append(type['type']['name'])
-        queries.update_types(pokemon_name, types_array)
-        return True
-    return False
-
-
+        is_success = queries.update_types(pokemon_name, types_array)
+        return is_success
+    return False, "pokemon's type not exist in API"
+    
 @app.route('/updateType', methods=['PUT'])
 def update_type_route():
     pokemon_name = request.args.get("name")
@@ -33,10 +31,10 @@ def update_type_route():
         return Response(json.dumps({"err": "require url parameter: name"}), 400)
     else:
         is_success = update_type(pokemon_name)
-        if is_success:
+        if is_success[0]:
             return Response(json.dumps({"success": "types added"}), 200)
         else:
-            return Response(json.dumps({"err": "not found types"}), 500)
+            return Response(json.dumps({"err": is_success[1]}), 500)
 
 
 @app.route('/getPokemonByType', methods=['GET'])
