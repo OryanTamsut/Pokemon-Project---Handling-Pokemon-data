@@ -81,3 +81,23 @@ def finds_most_owned():
 
 def update_types(name,types):
     pass
+
+
+def delete_pokemon(trainer, pokemon):
+    try:
+        with connection.cursor() as cursor:
+            query = f"delete from ownership where owner_name = '{trainer}' and pokemon_id in (select id from pokemon where name = '{pokemon}')"
+            cursor.execute(query)
+        connection.commit()
+    except(Exception) as e:
+        return False
+
+def add_pokemon(id, name, height, weight):
+    try:
+        with connection.cursor() as cursar:
+            query = 'INSERT into pokemon (id, name, height, weight) ' \
+                    f'values ({id},"{name}", {height}, {weight})'
+            cursar.execute(query)
+        connection.commit()
+    except(Exception) as e:
+        return False
