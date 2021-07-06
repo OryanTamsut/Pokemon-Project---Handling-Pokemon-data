@@ -6,6 +6,7 @@ from flask import Flask, Response, request
 
 app = Flask(__name__)
 
+app = Flask(__name__)
 url_get_pokemon = "https://pokeapi.co/api/v2/pokemon"
 
 
@@ -209,8 +210,6 @@ def evolve():
     else:
         return Response(json.dumps({"success": "upgrade successfully to " + new_name}),
                         200)
-
-
 def get_the_new_evolve(pokemon_name, trainer_name):
     pokemon_data = requests.get(url=f'{url_get_pokemon}/{pokemon_name}/', verify=False)
     pokemon_data = pokemon_data.json()
@@ -228,4 +227,4 @@ def get_the_new_evolve(pokemon_name, trainer_name):
         chain = chain.get('evolves_to')[0]
     if len(chain.get('evolves_to')) == 0:
         return {"error": "not have a new version"}, 500
-    return chain.get('evolves_to')[0].get('species').get('name'), 200, id
+    return chain.get('evolves_to')[0].get('species').get('name'), 200
