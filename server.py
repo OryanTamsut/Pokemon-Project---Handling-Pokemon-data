@@ -190,6 +190,10 @@ def evolve():
     if pokemon_data is None:
         return Response(json.dumps({"err": "failed- not found pokemon in API"}), 500)
     id = pokemon_data.get('id')
+
+    if queries.check_exist_owner_pokemon(trainer_name, id) is False:
+        return Response(json.dumps({"err": "this pokemon is not owned by this traniner"}), 400)
+
     species = pokemon_data.get('species')
     evolution_chain = requests.get(url=species.get('url'), verify=False).json().get('evolution_chain')
     chain = requests.get(url=evolution_chain.get('url'), verify=False).json().get('chain')
@@ -209,8 +213,7 @@ def evolve():
     is_success = update_type(new_name)
     if not is_success[0]:
         return Response(json.dumps({"err": "failed- could not upgrade pokemon: " + is_success[1]}), 500)
-    if queries.check_exist_owner_pokemon(trainer_name, id) is False:
-        return Response(json.dumps({"err": "this pokemon is not owned by this traniner"}), 400)
+
     # update the pokemon's owner that now he have a new version
     is_success = queries.update_own_pokemon(trainer_name, id, new_pokemon.get('id'))
     if not is_success[0]:
@@ -224,4 +227,4 @@ def evolve():
 
 
 if __name__ == '__main__':
-    app.run(port=5555)
+

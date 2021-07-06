@@ -3,11 +3,6 @@ import requests
 url = "http://127.0.0.1:5555"
 
 
-# test 1
-def test_update_types():
-    pass
-
-
 # test 2
 def test_add_pokemon():
     # this test can run only one times! (or delete the data that added from the DB)
@@ -66,7 +61,7 @@ def test_update_pokemon_types():
     assert "venusaur" in pokemons
 
 
-# test 7
+# test 6
 def test_evolve():
     # try evolve pokemon that can't be evolved
     result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "pinsir", "trainer_name": "Whitney"})

@@ -182,14 +182,15 @@ def check_exist_owner_pokemon(owner_name, pokemon_id):
             try:
                 # validate the accepted pair exists
                 query_update_ownership = "SELECT * " \
-                                         "FROM pokemon.ownership " \
+                                         "FROM ownership " \
                                          f"where owner_name='{owner_name}' and pokemon_id={pokemon_id};"
                 cursor.execute(query_update_ownership)
                 result = cursor.fetchall()
                 if len(result) > 0:
                     return True
                 return False
-            except:
+            except (Exception) as e:
+                print(e)
                 return False
     except:
         return False
