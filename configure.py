@@ -10,3 +10,7 @@ connection = pymysql.connect(
 )
 
 port = 5555
+
+url_get_pokemon = "https://pokeapi.co/api/v2/pokemon"
+
+url_server = "http://127.0.0.1:" + str(port)
