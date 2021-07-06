@@ -1,4 +1,4 @@
- USE DB_Pokemon;
+ USE db_pokemon;
  
 CREATE TABLE pokemon(
     id int auto_increment primary key,
@@ -27,4 +27,3 @@ CREATE TABLE ownership (
     FOREIGN KEY (pokemon_id)
         REFERENCES pokemon (id)
 ); 
-

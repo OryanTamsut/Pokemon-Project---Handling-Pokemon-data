@@ -3,6 +3,15 @@ import requests
 url = "http://127.0.0.1:5555"
 
 
+# test 1
+def test_get_pokemons_by_types():
+    pokemons = requests.get(url=f'{url}/getPokemonByType?type=normal').json()
+    pokemons = pokemons.get('pokemons')
+    assert "eevee" in pokemons
+    result = requests.put(url=f'{url}/updateType?name=eevee')
+    assert result.status_code == 200
+
+
 # test 2
 def test_add_pokemon():
     # this test can run only one times! (or delete the data that added from the DB)
@@ -27,6 +36,16 @@ def test_add_pokemon():
     assert add_pokemon.status_code == 500 and add_pokemon_mess.get('err') == "pokemon already exist"
 
 
+# test 3
+def test_update_pokemon_types():
+    result = requests.put(url=f'{url}/updateType?name=venusaur')
+    assert result.status_code == 200
+    pokemons = requests.get(url=f'{url}/getPokemonByType?type=poison').json().get('pokemons')
+    assert "venusaur" in pokemons
+    pokemons = requests.get(url=f'{url}/getPokemonByType?type=grass').json().get('pokemons')
+    assert "venusaur" in pokemons
+
+
 # test 4
 def test_get_pokemons_by_owner():
     # get all the pokemon that Dransa have
@@ -40,25 +59,6 @@ def test_get_owners_by_pokemon():
     # get all the owners of pokemon charmander
     trainers = requests.get(url=f'{url}/getTrainersByPokemon?name=charmander').json().get('trainers')
     assert trainers == ["Giovanni", "Jasmine", "Whitney"]
-
-
-# test 1
-def test_get_pokemons_by_types():
-    pokemons = requests.get(url=f'{url}/getPokemonByType?type=normal').json()
-    pokemons = pokemons.get('pokemons')
-    assert "eevee" in pokemons
-    result = requests.put(url=f'{url}/updateType?name=eevee')
-    assert result.status_code == 200
-
-
-# test 3
-def test_update_pokemon_types():
-    result = requests.put(url=f'{url}/updateType?name=venusaur')
-    assert result.status_code == 200
-    pokemons = requests.get(url=f'{url}/getPokemonByType?type=poison').json().get('pokemons')
-    assert "venusaur" in pokemons
-    pokemons = requests.get(url=f'{url}/getPokemonByType?type=grass').json().get('pokemons')
-    assert "venusaur" in pokemons
 
 
 # test 6

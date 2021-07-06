@@ -1,12 +1,15 @@
 import pymysql
+from flask import Flask, Response, request
 
-port = 5555
+app = Flask(__name__)
 
 connection = pymysql.connect(
     host="localhost",
     user="root",
     password="",
-    db="DB_Pokemon",
+    db="db_pokemon",
     charset="utf8",
     cursorclass=pymysql.cursors.DictCursor
 )
+
+port = 5555
