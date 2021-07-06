@@ -34,10 +34,10 @@ def load_data():
                 try:
                     cursor.execute(query)
                 except(Exception) as e:
-                    print(e)
+                    print("error: " + e)
         connection.commit()
     except(Exception) as e:
-        print(e)
+        print("error: "+e)
 
 
 if __name__ == '__main__':

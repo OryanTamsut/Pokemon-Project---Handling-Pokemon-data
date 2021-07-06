@@ -1,7 +1,10 @@
 import json
 import requests
 import queries
-from configure import *
+
+from flask import Flask, Response, request
+
+app = Flask(__name__)
 
 url_get_pokemon = "https://pokeapi.co/api/v2/pokemon"
 
@@ -182,23 +185,11 @@ def evolve():
     if pokemon_name is None or trainer_name is None:
         return Response(json.dumps({"err": "require body parameter: pokemon_name,trainer_name "}), 400)
     # get the next version of the pokemon
-    pokemon_data = requests.get(url=f'{url_get_pokemon}/{pokemon_name}/', verify=False)
-    pokemon_data = pokemon_data.json()
-    if pokemon_data is None:
-        return Response(json.dumps({"err": "failed- not found pokemon in API"}), 500)
-    id = pokemon_data.get('id')
-    if queries.check_exist_owner_pokemon(trainer_name, id) is False:
-        return Response(json.dumps({"err": "this pokemon is not owned by this traniner"}), 400)
-    species = pokemon_data.get('species')
-    evolution_chain = requests.get(url=species.get('url'), verify=False).json().get('evolution_chain')
-    chain = requests.get(url=evolution_chain.get('url'), verify=False).json().get('chain')
-    while chain.get('species').get('name') != pokemon_name:
-        if len(chain.get('evolves_to')) == 0:
-            return Response(json.dumps({"error": "not have a new version"}), 500)
-        chain = chain.get('evolves_to')[0]
-    if len(chain.get('evolves_to')) == 0:
-        return Response(json.dumps({"error": "not have a new version"}), 500)
-    new_name = chain.get('evolves_to')[0].get('species').get('name')
+    result = get_the_new_evolve(pokemon_name, trainer_name)
+    if result[1] != 200:
+        return Response(json.dumps(result[0]), result[1])
+    new_name = result[0]
+    id = result[2]
     # get the new pokemon data and add it to the DB
     new_pokemon = requests.get(url=f'{url_get_pokemon}/{new_name}/', verify=False).json()
     is_success = queries.add_pokemon(new_pokemon.get('id'), new_name, new_pokemon.get('height'),
@@ -219,3 +210,22 @@ def evolve():
         return Response(json.dumps({"success": "upgrade successfully to " + new_name}),
                         200)
 
+
+def get_the_new_evolve(pokemon_name, trainer_name):
+    pokemon_data = requests.get(url=f'{url_get_pokemon}/{pokemon_name}/', verify=False)
+    pokemon_data = pokemon_data.json()
+    if pokemon_data is None:
+        return "failed- not found pokemon in API", 500
+    id = pokemon_data.get('id')
+    if queries.check_exist_owner_pokemon(trainer_name, id) is False:
+        return {"err": "this pokemon is not owned by this traniner"}, 400
+    species = pokemon_data.get('species')
+    evolution_chain = requests.get(url=species.get('url'), verify=False).json().get('evolution_chain')
+    chain = requests.get(url=evolution_chain.get('url'), verify=False).json().get('chain')
+    while chain.get('species').get('name') != pokemon_name:
+        if len(chain.get('evolves_to')) == 0:
+            return {"error": "not have a new version"}, 500
+        chain = chain.get('evolves_to')[0]
+    if len(chain.get('evolves_to')) == 0:
+        return {"error": "not have a new version"}, 500
+    return chain.get('evolves_to')[0].get('species').get('name'), 200, id
