@@ -68,15 +68,13 @@ def test_update_pokemon_types():
 
 # test 7
 def test_evolve():
-    """
     # try evolve pokemon that can't be evolved
     result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "pinsir", "trainer_name": "Whitney"})
-    assert result.status_code == 500 and result.json().get('error') == "not have a new version"
+    assert result.status_code != 200
 
     # try evolve pokemon that not owned by this trainer
     result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "spearow ", "trainer_name": "Archie"})
-    assert result.status_code == 400 and result.json().get('err') == "this pokemon is not owned by this traniner"
-"""
+    assert result.status_code != 200
 
     # evolve pokemon
     result = requests.put(url=f'{url}/evolve', json={"pokemon_name": "oddish", "trainer_name": "Whitney"})
