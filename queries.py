@@ -189,7 +189,8 @@ def check_exist_owner_pokemon(owner_name, pokemon_id):
                 if len(result) > 0:
                     return True
                 return False
-            except:
+            except (Exception) as e:
+                print(e)
                 return False
     except:
         return False

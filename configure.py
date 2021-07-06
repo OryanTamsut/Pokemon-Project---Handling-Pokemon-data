@@ -1,7 +1,4 @@
 import pymysql
-from flask import Flask, Response, request
-
-
 
 connection = pymysql.connect(
     host="localhost",

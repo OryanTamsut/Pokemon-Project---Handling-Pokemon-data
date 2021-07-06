@@ -1,7 +1,7 @@
 import requests
 from configure import *
 
-url = "http://127.0.0.1" +str(port)
+url = "http://127.0.0.1:" + str(port)
 
 
 # test 1
